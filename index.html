@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AU/IF Checklist: Refined UI</title>
+    <style>
+        :root {
+            --primary: #6c5ce7;
+            --bg: #f0f2f5;
+            --card: rgba(255, 255, 255, 0.7);
+            --text: #2d3436;
+            --border: rgba(255, 255, 255, 0.3);
+            --progress-bg: rgba(0, 0, 0, 0.05);
+        }
+
+        body.dark-mode {
+            --bg: #1a1a1a;
+            --card: rgba(45, 45, 45, 0.6);
+            --text: #f5f6fa;
+            --border: rgba(255, 255, 255, 0.1);
+            --progress-bg: rgba(255, 255, 255, 0.1);
+        }
+
+        body {
+            background: var(--bg);
+            font-family: 'Pretendard', sans-serif;
+            margin: 0; padding: 15px;
+            display: flex; flex-direction: column; align-items: center;
+            color: var(--text);
+            transition: all 0.3s;
+        }
+
+        .top-bar {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            padding: 8px 16px; border-radius: 50px; 
+            margin-bottom: 15px;
+            display: flex; align-items: center; gap: 6px;
+            border: 1px solid var(--border);
+            z-index: 1000;
+        }
+        body.dark-mode .top-bar { background: rgba(45, 45, 45, 0.8); }
+
+        .btn { border: none; border-radius: 20px; cursor: pointer; font-weight: 600; font-size: 11px; transition: 0.2s; padding: 5px 10px; }
+        .btn-slot { background: transparent; color: #888; min-width: 25px; }
+        .btn-slot.active { background: var(--primary); color: white; }
+        .btn-main { background: var(--primary); color: white; }
+
+        .progress-container { width: 100%; max-width: 1000px; margin-bottom: 10px; }
+        .progress-bar-outer { width: 100%; height: 6px; background: var(--progress-bg); border-radius: 10px; overflow: hidden; }
+        .progress-bar-inner { width: 0%; height: 100%; background: var(--primary); transition: width 0.3s; }
+
+        #capture-area {
+            display: flex; gap: 25px; width: 1000px;
+            padding: 35px; border-radius: 30px; 
+            background-color: var(--bg);
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(255,255,255,0.2) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, var(--primary) 0px, transparent 70%);
+            align-items: stretch; position: relative;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.1);
+            box-sizing: border-box;
+            overflow: visible; 
+            transition: 0.5s;
+        }
+
+        .side-profile { width: 260px; flex-shrink: 0; display: flex; flex-direction: column; gap: 15px; }
+        .profile-card { 
+            background: linear-gradient(135deg, var(--primary) 0%, rgba(255,255,255,0.2) 150%);
+            backdrop-filter: blur(5px);
+            padding: 25px; border-radius: 24px; color: white; text-align: center;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        body.dark-mode .profile-card { background: linear-gradient(135deg, var(--primary) 0%, rgba(0,0,0,0.4) 150%); }
+
+        .img-box { width: 180px; height: 240px; margin: 0 auto 15px; border-radius: 18px; overflow: hidden; border: 1px dashed rgba(255,255,255,0.3); cursor: pointer; display: flex; align-items: center; justify-content: center; background: rgba(255, 255, 255, 0.05); }
+        .img-box img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+        .name-input { font-size: 22px; font-weight: 800; border: none; background: transparent; color: white; text-align: center; width: 100%; outline: none; border-bottom: 2px solid rgba(255,255,255,0.2); padding-bottom: 5px; margin-bottom: 5px; }
+        .desc-input { font-size: 13px; border: none; background: transparent; color: white; text-align: center; width: 100%; opacity: 0.9; outline: none; }
+
+        .name-input:-webkit-autofill {
+            -webkit-text-fill-color: white !important;
+            -webkit-box-shadow: 0 0 0px 1000px transparent inset !important;
+            transition: background-color 5000s ease-in-out 0s;
+        }
+
+        .link-section { 
+            background: rgba(255,255,255,0.15); 
+            backdrop-filter: blur(10px); 
+            padding: 15px 20px 20px; border-radius: 20px; 
+            border: 1px solid var(--border); flex-grow: 1; 
+            display: flex; flex-direction: column;
+            position: relative;
+        }
+        .link-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid var(--border); padding-bottom: 5px; }
+        .link-header label { font-size: 10px; font-weight: 800; opacity: 0.6; letter-spacing: 1px; }
+
+        #links { display: flex; flex-wrap: wrap; gap: 10px 12px; align-content: flex-start; }
+        .link-tag-base { display: inline-flex; align-items: center; background: rgba(255,255,255,0.5); border: 1px solid var(--border); border-radius: 30px; padding: 6px 16px; text-decoration: none; color: var(--text); font-size: 11px; font-weight: 600; transition: 0.2s; cursor: pointer; gap: 6px; position: relative; }
+        a.link-tag-base:hover { background: var(--primary); color: white; transform: scale(1.05); border-color: transparent; }
+
+        .tag-edit-pop { display: none; position: absolute; top: 50%; left: 110%; transform: translateY(-50%); background: var(--card); backdrop-filter: blur(25px); border: 1px solid var(--primary); border-radius: 12px; padding: 12px; z-index: 2000; width: 180px; box-shadow: 5px 5px 25px rgba(0,0,0,0.2); flex-direction: column; gap: 8px; }
+        .link-tag-base.is-active .tag-edit-pop { display: flex; }
+        .tag-edit-pop input { border: 1px solid var(--border); border-radius: 6px; padding: 8px; font-size: 11px; outline: none; background: rgba(255,255,255,0.9); }
+        body.dark-mode .tag-edit-pop input { background: rgba(0,0,0,0.3); color: white; }
+        body.dark-mode .link-tag-base { background: rgba(255,255,255,0.1); }
+        body.dark-mode .tag-edit-pop { background: #2d2d2d; }
+
+        .main-content { flex: 1; }
+        .au-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; }
+        .au-box { aspect-ratio: 1 / 1; background: var(--card); backdrop-filter: blur(12px); border-radius: 18px; border: 1px solid var(--border); position: relative; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.3s; padding: 8px; text-align: center; overflow: hidden; }
+        .au-box:hover { transform: translateY(-3px); border-color: var(--primary); background: rgba(255,255,255,0.8); }
+        .au-box.checked { border-color: var(--primary); background: rgba(255, 255, 255, 0.9) !important; }
+        .au-title { border: none; background: transparent; width: 100%; text-align: center; font-weight: 800; font-size: 14px; color: var(--text); outline: none; cursor: pointer; z-index: 2; position: relative; }
+        .au-box.checked .au-title { color: #1a1a1a !important; }
+        
+        /* 스탬프 레이어 수정: 이모지 크기 확대 */
+        .stamp-layer { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; opacity: 0; transition: 0.3s; pointer-events: none; z-index: 1; transform: scale(0.5) rotate(-15deg); }
+        .stamp-layer span { font-size: 85px; line-height: 1; display: block; margin-top: -5px; } /* 이모지 크기 대폭 확대 및 위치 보정 */
+        .stamp-layer img { width: 90%; height: 90%; object-fit: contain; }
+        .checked .stamp-layer { opacity: 0.5; transform: scale(1) rotate(-10deg); }
+    </style>
+</head>
+<body>
+
+<div class="top-bar">
+    <div class="slot-pill" id="slotList"></div>
+    <button class="btn btn-main" onclick="onSave()">저장</button>
+    <button class="btn btn-main" onclick="onLoad()">로드</button>
+    <button class="btn" onclick="document.body.classList.toggle('dark-mode')">🌓 다크모드</button>
+    <div style="width:1px; height:15px; background:var(--border); margin:0 5px;"></div>
+    <button class="btn btn-main" onclick="exportJSON()">내보내기</button>
+    <button class="btn btn-main" onclick="document.getElementById('jsonFile').click()">가져오기</button>
+    <input type="file" id="jsonFile" hidden accept=".json" onchange="importJSON(this)">
+    <button class="btn btn-main" onclick="addBox()">+</button>
+    <button class="btn btn-main" style="background:#ff7675" onclick="removeBox()">-</button>
+    <button class="btn btn-main" style="background:#f1c40f; color:#000" onclick="suggestAU()">🎲</button>
+</div>
+
+<div class="top-bar" style="margin-top:-10px; font-size:11px; padding: 5px 15px;">
+    <span>🎨 테마색: </span>
+    <input type="color" id="themePick" value="#6c5ce7" onchange="updateUI(this.value)" style="width:18px; height:18px; border:none; cursor:pointer; background:none; margin-right:10px;">
+    <div style="width:1px; height:12px; background:var(--border); margin:0 5px;"></div>
+    <span style="margin-left:5px;">✅ 스탬프: </span>
+    <input type="text" id="stampEmoji" value="✔" style="width:25px; text-align:center; border:1px solid #ddd; border-radius:5px; margin: 0 5px;" oninput="updateStampType('text')">
+    <button class="btn" style="padding:3px 6px; font-size:9px; background:#eee;" onclick="document.getElementById('stampFile').click()">이미지 업로드</button>
+    <input type="file" id="stampFile" hidden onchange="updateStampType('image')">
+</div>
+
+<div class="progress-container">
+    <div style="display:flex; justify-content:space-between; font-size:11px; font-weight:bold; margin-bottom:4px;">
+        <span>CHECKLIST PROGRESS</span>
+        <span id="pText">0% (0/0)</span>
+    </div>
+    <div class="progress-bar-outer"><div class="progress-bar-inner" id="pBar"></div></div>
+</div>
+
+<div id="capture-area">
+    <div class="side-profile">
+        <div class="profile-card">
+            <div class="img-box" onclick="document.getElementById('file').click()">
+                <img id="prev" src="data:image/svg+xml;charset=UTF-8,%3Csvg width='180' height='240' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='100%25' height='100%25' fill='rgba(255,255,255,0.1)'/%3E%3Ctext x='50%25' y='50%25' font-family='sans-serif' font-size='14' fill='white' text-anchor='middle' dy='.3em'%3EClick to Upload%3C/text%3E%3C/svg%3E">
+            </div>
+            <input type="file" id="file" hidden onchange="readImg(this)">
+            <input type="text" id="name" class="name-input" placeholder="이름">
+            <input type="text" id="desc" class="desc-input" placeholder="소개">
+        </div>
+        <div class="link-section">
+            <div class="link-header">
+                <label>TAGS & LINKS</label>
+                <button id="editToggleBtn" onclick="toggleEditMode()" style="background:none; border:none; color:var(--primary); font-size:10px; cursor:pointer; font-weight:bold;">🔗 태그 정보 수정</button>
+            </div>
+            <div id="links"></div>
+            <button onclick="addLink()" style="background:none; border:none; color:var(--primary); font-size:10px; cursor:pointer; font-weight:bold; width:100%; text-align:center; margin-top:15px; opacity:0.8;">+ ADD TAG</button>
+        </div>
+    </div>
+    <div class="main-content">
+        <div class="au-grid" id="grid"></div>
+    </div>
+</div>
+
+<script>
+    let currentSlot = 1;
+    let stampType = 'text';
+    let stampData = '✔';
+    let isEditMode = false;
+    const grid = document.getElementById('grid');
+
+    async function compressImage(base64Str, maxWidth = 400, type = 'image/png') {
+        return new Promise((resolve) => {
+            const img = new Image();
+            img.src = base64Str;
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                const scale = maxWidth / img.width;
+                canvas.width = maxWidth; canvas.height = img.height * scale;
+                const ctx = canvas.getContext('2d');
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                resolve(canvas.toDataURL(type, 0.7)); 
+            };
+        });
+    }
+
+    const slotList = document.getElementById('slotList');
+    for(let i=1; i<=5; i++) {
+        const btn = document.createElement('button');
+        btn.className = `btn btn-slot ${i===1?'active':''}`;
+        btn.innerText = i;
+        btn.onclick = (e) => {
+            currentSlot = i;
+            document.querySelectorAll('.btn-slot').forEach(x => x.classList.remove('active'));
+            e.target.classList.add('active');
+        };
+        slotList.appendChild(btn);
+    }
+
+    function updateUI(c) { document.documentElement.style.setProperty('--primary', c); updateProg(); }
+
+    function addBox(t="새 항목", c=false) {
+        const d = document.createElement('div');
+        d.className = `au-box ${c ? 'checked' : ''}`;
+        d.onclick = () => { d.classList.toggle('checked'); updateProg(); };
+        const stampHtml = stampType === 'text' ? `<span>${stampData}</span>` : `<img src="${stampData}">`;
+        d.innerHTML = `<div class="stamp-layer">${stampHtml}</div><input type="text" class="au-title" value="${t}" onclick="event.stopPropagation()">`;
+        grid.appendChild(d);
+        updateProg();
+    }
+
+    function updateStampType(type) {
+        stampType = type;
+        if(type === 'text') {
+            stampData = document.getElementById('stampEmoji').value;
+        } else {
+            const file = document.getElementById('stampFile').files[0];
+            if(!file) return;
+            const reader = new FileReader();
+            reader.onload = async (e) => {
+                stampData = await compressImage(e.target.result, 120, 'image/png'); 
+                refreshStamps();
+            };
+            reader.readAsDataURL(file);
+        }
+        refreshStamps();
+    }
+
+    function refreshStamps() {
+        document.querySelectorAll('.stamp-layer').forEach(layer => {
+            layer.innerHTML = stampType === 'text' ? `<span>${stampData}</span>` : `<img src="${stampData}">`;
+        });
+    }
+
+    function removeBox() { if(grid.lastChild) { grid.removeChild(grid.lastChild); updateProg(); } }
+    function suggestAU() { const aus = ["학생", "좀아포", "연예인", "무협", "해적", "로판", "마피아", "히빌", "2P", "구룡성채", "조선", "중세", "마법소녀", "데스게임", "밴드", "오피스", "공포게임", "요괴/퇴마사", "이세계", "성인", "직업반전", "옾더레", "현판", "배틀로얄", "메이드", "연구소", "하이틴"]; addBox(aus[Math.floor(Math.random() * aus.length)]); }
+
+    function updateProg() {
+        const b = document.querySelectorAll('.au-box');
+        const c = document.querySelectorAll('.au-box.checked');
+        const p = b.length ? Math.round((c.length / b.length) * 100) : 0;
+        document.getElementById('pBar').style.width = p + '%';
+        document.getElementById('pText').innerText = `${p}% (${c.length}/${b.length})`;
+    }
+
+    function toggleEditMode() {
+        isEditMode = !isEditMode;
+        const linksContainer = document.getElementById('links');
+        const tags = Array.from(linksContainer.children);
+        tags.forEach(tag => {
+            const title = tag.querySelector('span').innerText;
+            const url = isEditMode ? tag.href : tag.dataset.url;
+            const newTag = createTagElement(title, url);
+            linksContainer.replaceChild(newTag, tag);
+        });
+        const editBtn = document.getElementById('editToggleBtn');
+        editBtn.innerText = isEditMode ? "✅ 수정 완료" : "🔗 태그 정보 수정";
+        editBtn.style.color = isEditMode ? "#ff7675" : "var(--primary)";
+    }
+
+    function createTagElement(title, url) {
+        const el = document.createElement(isEditMode ? 'div' : 'a');
+        el.className = `link-tag-base ${isEditMode ? 'edit-mode' : ''}`;
+        if (!isEditMode) { el.href = url || "#"; el.target = "_blank"; } 
+        else {
+            el.dataset.url = url || "";
+            el.onclick = () => {
+                document.querySelectorAll('.link-tag-base').forEach(t => { if (t !== el) t.classList.remove('is-active'); });
+                el.classList.toggle('is-active');
+            };
+        }
+        const span = document.createElement('span');
+        span.innerText = title;
+        el.appendChild(span);
+        if (isEditMode) {
+            const pop = document.createElement('div');
+            pop.className = "tag-edit-pop";
+            pop.onclick = (e) => e.stopPropagation();
+            const tInp = document.createElement('input');
+            tInp.value = title; tInp.placeholder = "버튼 제목";
+            tInp.oninput = (e) => span.innerText = e.target.value;
+            const uInp = document.createElement('input');
+            uInp.value = url; uInp.placeholder = "URL (https://...)";
+            uInp.oninput = (e) => {
+                const newUrl = e.target.value;
+                el.dataset.url = newUrl.startsWith('http') ? newUrl : 'https://' + newUrl;
+            };
+            const delBtn = document.createElement('button');
+            delBtn.innerText = "삭제";
+            delBtn.style = "font-size:10px; background:#ff7675; color:white; border:none; border-radius:4px; padding:6px; cursor:pointer; font-weight:bold;";
+            delBtn.onclick = (e) => { e.stopPropagation(); el.remove(); };
+            pop.appendChild(tInp); pop.appendChild(uInp); pop.appendChild(delBtn);
+            el.appendChild(pop);
+        }
+        return el;
+    }
+
+    function addLink(t = "Link", v = "") {
+        const linksContainer = document.getElementById('links');
+        const tag = createTagElement(t, v);
+        linksContainer.appendChild(tag);
+    }
+
+    async function readImg(input) {
+        if(!input.files[0]) return;
+        const r = new FileReader();
+        r.onload = async e => document.getElementById('prev').src = await compressImage(e.target.result, 400, 'image/jpeg');
+        r.readAsDataURL(input.files[0]);
+    }
+
+    async function onSave() {
+        try {
+            const data = {
+                n: document.getElementById('name').value,
+                d: document.getElementById('desc').value,
+                i: document.getElementById('prev').src,
+                t: document.getElementById('themePick').value,
+                dm: document.body.classList.contains('dark-mode'),
+                st: stampType, sd: stampData,
+                b: Array.from(document.querySelectorAll('.au-grid .au-box')).map(el => ({ t: el.querySelector('.au-title').value, c: el.classList.contains('checked') })),
+                l: Array.from(document.getElementById('links').children).map(el => ({
+                    t: el.querySelector('span').innerText,
+                    u: isEditMode ? el.dataset.url : el.href
+                }))
+            };
+            localStorage.setItem(`au_ui_v2_s${currentSlot}`, JSON.stringify(data));
+            alert("저장 완료");
+        } catch (e) { alert("저장 공간이 부족합니다."); }
+    }
+
+    function onLoad() {
+        const raw = localStorage.getItem(`au_ui_v2_s${currentSlot}`);
+        if(!raw) return alert("저장된 데이터가 없습니다.");
+        const d = JSON.parse(raw);
+        document.getElementById('name').value = d.n || ""; 
+        document.getElementById('desc').value = d.d || "";
+        document.getElementById('prev').src = d.i || ""; 
+        document.getElementById('themePick').value = d.t || "#6c5ce7";
+        updateUI(d.t || "#6c5ce7");
+        stampType = d.st || 'text'; stampData = d.sd || '✔';
+        d.dm ? document.body.classList.add('dark-mode') : document.body.classList.remove('dark-mode');
+        grid.innerHTML = ''; 
+        if(d.b) d.b.forEach(x => addBox(x.t, x.c));
+        document.getElementById('links').innerHTML = ''; 
+        if(d.l) d.l.forEach(x => addLink(x.t, x.u));
+        refreshStamps();
+    }
+
+    function exportJSON() {
+        const data = {
+            n: document.getElementById('name').value,
+            d: document.getElementById('desc').value,
+            i: document.getElementById('prev').src,
+            t: document.getElementById('themePick').value,
+            dm: document.body.classList.contains('dark-mode'),
+            st: stampType, sd: stampData,
+            b: Array.from(document.querySelectorAll('.au-grid .au-box')).map(el => ({ t: el.querySelector('.au-title').value, c: el.classList.contains('checked') })),
+            l: Array.from(document.getElementById('links').children).map(el => ({ t: el.querySelector('span').innerText, u: isEditMode ? el.dataset.url : el.href }))
+        };
+        const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url; a.download = `au_checklist_${data.n || 'unnamed'}.json`;
+        a.click(); URL.revokeObjectURL(url);
+    }
+
+    function importJSON(input) {
+        const file = input.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            try {
+                const d = JSON.parse(e.target.result);
+                document.getElementById('name').value = d.n || "";
+                document.getElementById('desc').value = d.d || "";
+                document.getElementById('prev').src = d.i || ""; 
+                document.getElementById('themePick').value = d.t || "#6c5ce7";
+                updateUI(d.t || "#6c5ce7");
+                stampType = d.st || 'text'; stampData = d.sd || '✔';
+                d.dm ? document.body.classList.add('dark-mode') : document.body.classList.remove('dark-mode');
+                grid.innerHTML = ''; if(d.b) d.b.forEach(x => addBox(x.t, x.c));
+                document.getElementById('links').innerHTML = ''; if(d.l) d.l.forEach(x => addLink(x.t, x.u));
+                refreshStamps();
+                alert("성공적으로 불러왔습니다.");
+                input.value = "";
+            } catch (err) { alert("유효한 JSON 파일이 아닙니다."); }
+        };
+        reader.readAsText(file);
+    }
+
+    // 초기 설정
+    for(let i=0; i<12; i++) addBox();
+    addLink("Profile", "");
+</script>
+</body>
+</html>

@@ -276,7 +276,7 @@
     }
 
     function removeBox() { if(grid.lastChild) { grid.removeChild(grid.lastChild); updateProg(); } }
-    function suggestAU() { const aus = ["동급생", "좀비물", "아이돌", "무협", "해적", "로판"]; addBox(aus[Math.floor(Math.random() * aus.length)]); }
+    function suggestAU() { const aus = ["학생", "좀비물", "연예인", "무협", "해적", "로판", "방송인", "마피아", "로판", "구룡성채", "연령반전", "센가버스", "사극", "중세", "히빌", "이능력", "이세계", "마법소녀", "경찰", "옾더레", "밴드", "2P"]; addBox(aus[Math.floor(Math.random() * aus.length)]); }
 
     function updateProg() {
         const b = document.querySelectorAll('.au-box');

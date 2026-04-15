@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AU/IF Checklist</title>
+    <title>AU/IF Checklist: Refined UI</title>
     <style>
         :root {
             --primary: #6c5ce7;
@@ -81,85 +81,62 @@
 
         .img-box { width: 180px; height: 240px; background: rgba(255,255,255,0.1); margin: 0 auto 15px; border-radius: 18px; overflow: hidden; border: 1px dashed rgba(255,255,255,0.3); cursor: pointer; }
         .img-box img { width: 100%; height: 100%; object-fit: cover; }
+        .img-box {
+    /* ... 기존 코드 유지 ... */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.05); /* 기본 배경을 살짝 줌 */
+}
 
+.img-box img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block; /* 이미지 하단 미세한 공백 제거 */
+}
+
+        /* 입력란 보정 */
         .name-input { font-size: 22px; font-weight: 800; border: none; background: transparent; color: white; text-align: center; width: 100%; outline: none; border-bottom: 2px solid rgba(255,255,255,0.2); padding-bottom: 5px; margin-bottom: 5px; }
         .desc-input { font-size: 13px; border: none; background: transparent; color: white; text-align: center; width: 100%; opacity: 0.9; outline: none; }
 
-        /* --- 링크 섹션 레이아웃 (간격 최종 수정) --- */
+        .name-input:-webkit-autofill {
+            -webkit-text-fill-color: white !important;
+            -webkit-box-shadow: 0 0 0px 1000px transparent inset !important;
+            transition: background-color 5000s ease-in-out 0s;
+        }
+
+        /* 링크 섹션 */
         .link-section { 
             background: rgba(255,255,255,0.15); 
             backdrop-filter: blur(10px); 
-            padding: 20px; border-radius: 20px; 
+            padding: 15px 20px 20px; border-radius: 20px; 
             border: 1px solid var(--border); flex-grow: 1; 
-            display: flex; flex-wrap: wrap; 
-            gap: 3px 5px; /* 상하 10px, 좌우 12px 여백 (3pt 이상 보장) */
-            align-content: flex-start;
+            display: flex; flex-direction: column;
             position: relative;
         }
+        .link-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid var(--border); padding-bottom: 5px; }
+        .link-header label { font-size: 10px; font-weight: 800; opacity: 0.6; letter-spacing: 1px; }
 
-        .link-tag-base {
-            display: inline-flex; align-items: center;
-            background: rgba(255,255,255,0.5);
-            border: 1px solid var(--border);
-            border-radius: 30px;
-            padding: 3px 10px;
-            text-decoration: none;
-            color: var(--text);
-            font-size: 11px;
-            font-weight: 600;
-            transition: 0.2s;
-            cursor: pointer;
-            gap: 6px;
-            position: relative;
-        }
+        #links { display: flex; flex-wrap: wrap; gap: 10px 12px; align-content: flex-start; }
+        .link-tag-base { display: inline-flex; align-items: center; background: rgba(255,255,255,0.5); border: 1px solid var(--border); border-radius: 30px; padding: 6px 16px; text-decoration: none; color: var(--text); font-size: 11px; font-weight: 600; transition: 0.2s; cursor: pointer; gap: 6px; position: relative; }
+        a.link-tag-base:hover { background: var(--primary); color: white; transform: scale(1.05); border-color: transparent; }
 
-        a.link-tag-base:hover {
-            background: var(--primary);
-            color: white;
-            transform: scale(1.05);
-            border-color: transparent;
-        }
-
-        /* --- 수정 팝업 스타일 --- */
-        .tag-edit-pop {
-            display: none;
-            position: absolute; 
-            top: 50%; 
-            left: 110%; 
-            transform: translateY(-50%);
-            background: var(--card); backdrop-filter: blur(25px);
-            border: 1px solid var(--primary); border-radius: 12px;
-            padding: 12px; z-index: 2000; width: 180px;
-            box-shadow: 5px 5px 25px rgba(0,0,0,0.2);
-            flex-direction: column; gap: 8px;
-        }
-        
+        .tag-edit-pop { display: none; position: absolute; top: 50%; left: 110%; transform: translateY(-50%); background: var(--card); backdrop-filter: blur(25px); border: 1px solid var(--primary); border-radius: 12px; padding: 12px; z-index: 2000; width: 180px; box-shadow: 5px 5px 25px rgba(0,0,0,0.2); flex-direction: column; gap: 8px; }
         .link-tag-base.is-active .tag-edit-pop { display: flex; }
-        
-        .tag-edit-pop input { 
-            border: 1px solid var(--border); border-radius: 6px; 
-            padding: 8px; font-size: 11px; outline: none;
-            background: rgba(255,255,255,0.9);
-        }
+        .tag-edit-pop input { border: 1px solid var(--border); border-radius: 6px; padding: 8px; font-size: 11px; outline: none; background: rgba(255,255,255,0.9); }
         body.dark-mode .tag-edit-pop input { background: rgba(0,0,0,0.3); color: white; }
         body.dark-mode .link-tag-base { background: rgba(255,255,255,0.1); }
         body.dark-mode .tag-edit-pop { background: #2d2d2d; }
 
+        /* 그리드 */
         .main-content { flex: 1; }
         .au-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; }
-
-        .au-box {
-            aspect-ratio: 1 / 1; background: var(--card);
-            backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-            border-radius: 18px; border: 1px solid var(--border); 
-            position: relative; cursor: pointer;
-            display: flex; align-items: center; justify-content: center;
-            transition: 0.3s; padding: 8px; text-align: center; overflow: hidden;
-        }
+        .au-box { aspect-ratio: 1 / 1; background: var(--card); backdrop-filter: blur(12px); border-radius: 18px; border: 1px solid var(--border); position: relative; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.3s; padding: 8px; text-align: center; overflow: hidden; }
         .au-box:hover { transform: translateY(-3px); border-color: var(--primary); background: rgba(255,255,255,0.8); }
-        .au-box.checked { border-color: var(--primary); background: rgba(255, 255, 255, 0.9); }
-        
+        .au-box.checked { border-color: var(--primary); background: rgba(255, 255, 255, 0.9) !important; }
         .au-title { border: none; background: transparent; width: 100%; text-align: center; font-weight: 800; font-size: 14px; color: var(--text); outline: none; cursor: pointer; z-index: 2; }
+        .au-box.checked .au-title { color: #1a1a1a !important; }
         .stamp-layer { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; opacity: 0; transition: 0.3s; pointer-events: none; z-index: 1; transform: scale(0.5) rotate(-15deg); }
         .checked .stamp-layer { opacity: 0.4; transform: scale(1.1) rotate(-10deg); }
     </style>
@@ -170,21 +147,29 @@
     <div class="slot-pill" id="slotList"></div>
     <button class="btn btn-main" onclick="onSave()">저장</button>
     <button class="btn btn-main" onclick="onLoad()">로드</button>
-    <input type="color" id="themePick" value="#6c5ce7" onchange="updateUI(this.value)" style="width:20px; height:20px; border:none; cursor:pointer; background:none;">
-    <button class="btn" onclick="document.body.classList.toggle('dark-mode')">🌓 테마</button>
+    <button class="btn" onclick="document.body.classList.toggle('dark-mode')">🌓 다크모드</button>
+    <div style="width:1px; height:15px; background:var(--border); margin:0 5px;"></div>
+        <button class="btn btn-main" onclick="exportJSON()">내보내기</button>
+<button class="btn btn-main" onclick="document.getElementById('jsonFile').click()">가져오기</button>
+<input type="file" id="jsonFile" hidden accept=".json" onchange="importJSON(this)">
     <button class="btn btn-main" onclick="addBox()">+</button>
     <button class="btn btn-main" style="background:#ff7675" onclick="removeBox()">-</button>
     <button class="btn btn-main" style="background:#f1c40f; color:#000" onclick="suggestAU()">🎲</button>
 </div>
 
 <div class="top-bar" style="margin-top:-10px; font-size:11px; padding: 5px 15px;">
-    <span>🎨 스탬프: </span>
-    <input type="text" id="stampEmoji" value="✔" style="width:25px; text-align:center; border:1px solid #ddd; border-radius:5px;" oninput="updateStampType('text')">
-    <button class="btn" style="padding:3px 6px; font-size:9px; background:#eee;" onclick="document.getElementById('stampFile').click()">업로드</button>
+    <span>🎨 테마색: </span>
+    <input type="color" id="themePick" value="#6c5ce7" onchange="updateUI(this.value)" style="width:18px; height:18px; border:none; cursor:pointer; background:none; margin-right:10px;">
+    
+    <span>🌈 배경색: </span>
+    <input type="color" id="meshPick" value="#e0e7ff" onchange="updateMesh(this.value)" style="width:18px; height:18px; border:none; cursor:pointer; background:none; margin-right:15px;">
+
+    <div style="width:1px; height:12px; background:var(--border); margin:0 5px;"></div>
+
+    <span style="margin-left:5px;">✅ 스탬프: </span>
+    <input type="text" id="stampEmoji" value="✔" style="width:25px; text-align:center; border:1px solid #ddd; border-radius:5px; margin: 0 5px;" oninput="updateStampType('text')">
+    <button class="btn" style="padding:3px 6px; font-size:9px; background:#eee;" onclick="document.getElementById('stampFile').click()">이미지 업로드</button>
     <input type="file" id="stampFile" hidden onchange="updateStampType('image')">
-    <span style="margin-left:10px;">🌈 배경색: </span>
-    <input type="color" id="meshPick" value="#e0e7ff" onchange="updateMesh(this.value)" style="width:18px; height:18px; border:none; cursor:pointer; background:none;">
-    <button class="btn" id="editToggleBtn" style="margin-left:10px; background:#eee;" onclick="toggleEditMode()">✏️ 제목/링크 수정</button>
 </div>
 
 <div class="progress-container">
@@ -199,15 +184,19 @@
     <div class="side-profile">
         <div class="profile-card">
             <div class="img-box" onclick="document.getElementById('file').click()">
-                <img id="prev" src="https://via.placeholder.com/180x240?text=Profile">
+                <img id="prev" src="data:image/svg+xml;charset=UTF-8,%3Csvg width='180' height='240' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='100%25' height='100%25' fill='rgba(255,255,255,0.1)'/%3E%3Ctext x='50%25' y='50%25' font-family='sans-serif' font-size='14' fill='white' text-anchor='middle' dy='.3em'%3EClick to Upload%3C/text%3E%3C/svg%3E">
             </div>
             <input type="file" id="file" hidden onchange="readImg(this)">
             <input type="text" id="name" class="name-input" placeholder="이름">
             <input type="text" id="desc" class="desc-input" placeholder="소개">
         </div>
         <div class="link-section">
-            <div id="links" style="display: flex; flex-wrap: wrap; gap: 3px 5px;"></div>
-            <button onclick="addLink()" style="background:none; border:none; color:var(--primary); font-size:10px; cursor:pointer; font-weight:bold; width:100%; text-align:center; margin-top:10px;">+ ADD TAG</button>
+            <div class="link-header">
+                <label>TAGS & LINKS</label>
+                <button id="editToggleBtn" onclick="toggleEditMode()" style="background:none; border:none; color:var(--primary); font-size:10px; cursor:pointer; font-weight:bold;">🔗 태그 정보 수정</button>
+            </div>
+            <div id="links"></div>
+            <button onclick="addLink()" style="background:none; border:none; color:var(--primary); font-size:10px; cursor:pointer; font-weight:bold; width:100%; text-align:center; margin-top:15px; opacity:0.8;">+ ADD TAG</button>
         </div>
     </div>
     <div class="main-content">
@@ -301,66 +290,51 @@
         isEditMode = !isEditMode;
         const linksContainer = document.getElementById('links');
         const tags = Array.from(linksContainer.children);
-        
         tags.forEach(tag => {
             const title = tag.querySelector('span').innerText;
             const url = isEditMode ? tag.href : tag.dataset.url;
             const newTag = createTagElement(title, url);
             linksContainer.replaceChild(newTag, tag);
         });
-
         const editBtn = document.getElementById('editToggleBtn');
-        editBtn.innerText = isEditMode ? "✅ 수정 완료" : "✏️ 제목/링크 수정";
-        editBtn.style.background = isEditMode ? "var(--primary)" : "#eee";
-        editBtn.style.color = isEditMode ? "white" : "inherit";
+        editBtn.innerText = isEditMode ? "✅ 수정 완료" : "🔗 태그 정보 수정";
+        editBtn.style.color = isEditMode ? "#ff7675" : "var(--primary)";
     }
 
     function createTagElement(title, url) {
         const el = document.createElement(isEditMode ? 'div' : 'a');
         el.className = `link-tag-base ${isEditMode ? 'edit-mode' : ''}`;
-        
-        if (!isEditMode) {
-            el.href = url || "#";
-            el.target = "_blank";
-        } else {
+        if (!isEditMode) { el.href = url || "#"; el.target = "_blank"; } 
+        else {
             el.dataset.url = url || "";
-            el.onclick = (e) => {
-                document.querySelectorAll('.link-tag-base').forEach(t => {
-                    if (t !== el) t.classList.remove('is-active');
-                });
+            el.onclick = () => {
+                document.querySelectorAll('.link-tag-base').forEach(t => { if (t !== el) t.classList.remove('is-active'); });
                 el.classList.toggle('is-active');
             };
         }
-
         const span = document.createElement('span');
         span.innerText = title;
         el.appendChild(span);
-
         if (isEditMode) {
             const pop = document.createElement('div');
             pop.className = "tag-edit-pop";
             pop.onclick = (e) => e.stopPropagation();
-
             const tInp = document.createElement('input');
             tInp.value = title; tInp.placeholder = "버튼 제목";
             tInp.oninput = (e) => span.innerText = e.target.value;
-
             const uInp = document.createElement('input');
             uInp.value = url; uInp.placeholder = "URL (https://...)";
             uInp.oninput = (e) => {
                 const newUrl = e.target.value;
                 el.dataset.url = newUrl.startsWith('http') ? newUrl : 'https://' + newUrl;
             };
-
             const delBtn = document.createElement('button');
             delBtn.innerText = "삭제";
             delBtn.style = "font-size:10px; background:#ff7675; color:white; border:none; border-radius:4px; padding:6px; cursor:pointer; font-weight:bold;";
             delBtn.onclick = (e) => { e.stopPropagation(); el.remove(); };
-
             pop.appendChild(tInp); pop.appendChild(uInp); pop.appendChild(delBtn);
             el.appendChild(pop);
         }
-
         return el;
     }
 
@@ -392,17 +366,18 @@
                     u: isEditMode ? el.dataset.url : el.href
                 }))
             };
-            localStorage.setItem(`au_spaced_final_s${currentSlot}`, JSON.stringify(data));
+            localStorage.setItem(`au_ui_v2_s${currentSlot}`, JSON.stringify(data));
             alert("저장 완료");
         } catch (e) { alert("용량 초과"); }
     }
 
     function onLoad() {
-        const raw = localStorage.getItem(`au_spaced_final_s${currentSlot}`);
+        const raw = localStorage.getItem(`au_ui_v2_s${currentSlot}`);
         if(!raw) return alert("데이터 없음");
         const d = JSON.parse(raw);
         document.getElementById('name').value = d.n; document.getElementById('desc').value = d.d;
-        document.getElementById('prev').src = d.i; document.getElementById('themePick').value = d.t;
+        document.getElementById('prev').src = d.i; 
+        document.getElementById('themePick').value = d.t;
         document.getElementById('meshPick').value = d.m || "#e0e7ff";
         updateUI(d.t); updateMesh(d.m || "#e0e7ff");
         stampType = d.st || 'text'; stampData = d.sd || '✔';
@@ -414,6 +389,82 @@
 
     for(let i=0; i<12; i++) addBox();
     addLink("Profile", "");
+    // 1. 데이터를 JSON 파일로 다운로드
+function exportJSON() {
+    const data = {
+        n: document.getElementById('name').value,
+        d: document.getElementById('desc').value,
+        i: document.getElementById('prev').src,
+        t: document.getElementById('themePick').value,
+        m: document.getElementById('meshPick').value,
+        dm: document.body.classList.contains('dark-mode'),
+        st: stampType, 
+        sd: stampData,
+        b: Array.from(document.querySelectorAll('.au-grid .au-box')).map(el => ({ 
+            t: el.querySelector('.au-title').value, 
+            c: el.classList.contains('checked') 
+        })),
+        l: Array.from(document.getElementById('links').children).map(el => ({
+            t: el.querySelector('span').innerText,
+            u: isEditMode ? el.dataset.url : el.href
+        }))
+    };
+
+    const fileName = `au_checklist_${data.n || 'unnamed'}.json`;
+    const jsonStr = JSON.stringify(data, null, 2);
+    const blob = new Blob([jsonStr], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = fileName;
+    a.click();
+    URL.revokeObjectURL(url);
+}
+
+// 2. JSON 파일을 읽어서 화면에 반영
+function importJSON(input) {
+    const file = input.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        try {
+            const d = JSON.parse(e.target.result);
+            
+            // 화면 UI 업데이트
+            document.getElementById('name').value = d.n || "";
+            document.getElementById('desc').value = d.d || "";
+            document.getElementById('prev').src = d.i || ""; 
+            document.getElementById('themePick').value = d.t || "#6c5ce7";
+            document.getElementById('meshPick').value = d.m || "#e0e7ff";
+            
+            updateUI(d.t || "#6c5ce7");
+            updateMesh(d.m || "#e0e7ff");
+            
+            stampType = d.st || 'text';
+            stampData = d.sd || '✔';
+            
+            if(d.dm) document.body.classList.add('dark-mode');
+            else document.body.classList.remove('dark-mode');
+
+            // 그리드 복구
+            grid.innerHTML = '';
+            if(d.b) d.b.forEach(x => addBox(x.t, x.c));
+
+            // 링크 복구
+            document.getElementById('links').innerHTML = '';
+            if(d.l) d.l.forEach(x => addLink(x.t, x.u));
+            
+            refreshStamps();
+            alert("파일을 성공적으로 불러왔습니다!");
+            input.value = ""; // 파일 선택 초기화
+        } catch (err) {
+            alert("유효한 JSON 파일이 아닙니다.");
+        }
+    };
+    reader.readAsText(file);
+}
 </script>
 </body>
 </html>
